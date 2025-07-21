@@ -1,0 +1,25 @@
+import pandas as pd
+from flask import Response
+
+@app.route('/export/users')
+@login_required
+def export_users():
+    if current_user.department.name != 'RH':
+        flash('Acesso restrito ao RH.')
+        return redirect(url_for('dashboard'))
+
+    data = [{
+        'ID': u.id,
+        'Nome': u.name,
+        'Email': u.email,
+        'Departamento': u.department.name,
+        'Obra': u.obra.name
+    } for u in User.query.all()]
+    
+    df = pd.DataFrame(data)
+    csv = df.to_csv(index=False)
+
+    return Response(csv,
+                    mimetype="text/csv",
+                    headers={"Content-disposition":
+                             "attachment; filename=usuarios.csv"})
