@@ -3,6 +3,17 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+class Departamento(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    usuarios = db.relationship('User', backref='departamento', lazy=True)
+
+class Obra(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(200), nullable=False)
+    gastos = db.relationship('Gasto', backref='obra', lazy=True)
+    usuarios = db.relationship('User', backref='obra_relacionada', lazy=True)
+
 class User(db.Model, UserMixin):
     active = db.Column(db.Boolean, default=True)
 
@@ -16,10 +27,8 @@ class User(db.Model, UserMixin):
     senha = db.Column(db.String(128), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)  # 'visualizador' ou 'editor'
 
-class Obra(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(200), nullable=False)
-    gastos = db.relationship('Gasto', backref='obra', lazy=True)
+    obra_id = db.Column(db.Integer, db.ForeignKey('obra.id'), nullable=True)
+    departamento_id = db.Column(db.Integer, db.ForeignKey('departamento.id'), nullable=True)
 
 class Gasto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
