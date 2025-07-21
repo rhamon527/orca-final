@@ -1,0 +1,22 @@
+from orca_gastos import app
+from models import db, Obra, Departamento
+
+with app.app_context():
+    # Recria todas as tabelas
+    db.drop_all()
+    db.create_all()
+
+    # Cadastra obras iniciais
+    obra1 = Obra(nome="Obra Central")
+    obra2 = Obra(nome="Obra Zona Norte")
+    db.session.add_all([obra1, obra2])
+
+    # Cadastra departamentos iniciais
+    dep1 = Departamento(nome="RH")
+    dep2 = Departamento(nome="Fiscal")
+    dep3 = Departamento(nome="Segurança")
+    db.session.add_all([dep1, dep2, dep3])
+
+    db.session.commit()
+
+print("Banco de dados criado com sucesso com obras e departamentos iniciais!")
