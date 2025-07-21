@@ -1,0 +1,30 @@
+<!-- templates/painel_rh.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel RH</title>
+</head>
+<body>
+  <h1>👩‍💼 Painel do RH</h1>
+
+  <h2>📋 Cadastro de Funcionários</h2>
+  <form method="POST" action="/cadastrar_funcionario">
+    <input type="text" name="nome" placeholder="Nome completo" required><br>
+    <input type="text" name="cpf" placeholder="CPF" required><br>
+    <input type="date" name="data_nascimento" required><br>
+    <button type="submit">Cadastrar Funcionário</button>
+  </form>
+
+  <h2>💰 Folha de Pagamento</h2>
+  <form method="POST" action="/calcular_folha">
+    <input type="text" name="funcionario" placeholder="Nome do Funcionário" required><br>
+    <input type="number" name="valor_base" placeholder="Valor base R$" step="0.01"><br>
+    <input type="number" name="horas_50" placeholder="Horas extras 50%" step="0.01"><br>
+    <input type="number" name="horas_100" placeholder="Horas extras 100%" step="0.01"><br>
+    <input type="number" name="descontos" placeholder="Descontos R$" step="0.01"><br>
+    <input type="number" name="impostos" placeholder="Impostos R$" step="0.01"><br>
+    <button type="submit">Calcular Folha</button>
+  </form>
+</body>
+</html>
