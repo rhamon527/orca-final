@@ -1,0 +1,15 @@
+@app.route('/fiscal/locacoes')
+@login_required
+def fiscal_locacoes():
+    if current_user.department.name != 'Fiscal':
+        flash('Acesso restrito ao setor Fiscal.')
+        return redirect(url_for('dashboard'))
+    return "<h2>Lançar Locações</h2>"
+
+@app.route('/seguranca/epis')
+@login_required
+def seguranca_epis():
+    if current_user.department.name != 'Segurança':
+        flash('Acesso restrito à Segurança.')
+        return redirect(url_for('dashboard'))
+    return "<h2>Cadastro de EPIs</h2>"
