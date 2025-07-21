@@ -1,3 +1,5 @@
+-from models import db, User, Obra, Gasto
++from models import db, User, Obra, Gasto, Department
 from flask import Flask, render_template_string, redirect, url_for, request, flash
 from flask_login import (
     LoginManager, UserMixin,
