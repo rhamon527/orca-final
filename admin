@@ -1,0 +1,20 @@
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    if current_user.department.name != 'RH':
+        flash('Acesso restrito ao RH.')
+        return redirect(url_for('dashboard'))
+    users = User.query.all()
+    return render_template_string("""
+    <h2>Usuários Cadastrados</h2>
+    <table border="1">
+        <tr><th>ID</th><th>Nome</th><th>Email</th><th>Departamento</th><th>Obra</th></tr>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td><td>{{ u.name }}</td><td>{{ u.email }}</td>
+            <td>{{ u.department.name }}</td><td>{{ u.obra.name }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><a href="{{ url_for('dashboard') }}">Voltar</a></p>
+    """, users=users)
