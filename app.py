@@ -148,6 +148,32 @@ def register():
     return render_template_string(register_tpl,
                                   departments=depts,
                                   obras=obras)
+# Outras rotas existentes...
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# 🔽 Aqui pode colar as novas rotas do RH
+@app.route('/painel_rh')
+@login_required
+def painel_rh():
+    return render_template('painel_rh.html')
+
+@app.route('/cadastrar_funcionario', methods=['POST'])
+@login_required
+def cadastrar_funcionario():
+    nome = request.form['nome']
+    cpf = request.form['cpf']
+    data_nasc = request.form['data_nascimento']
+    flash(f'Funcionário {nome} cadastrado com sucesso!')
+    return redirect(url_for('painel_rh'))
+
+@app.route('/calcular_folha', methods=['POST'])
+@login_required
+def calcular_folha():
+    valor_base = float(request.form['valor_base'])
+    horas_50 = float(request.form['horas_50'])
+    horas_100 = float(request.form_
 
 @app.route('/logout')
 @login_required
