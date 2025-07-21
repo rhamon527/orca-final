@@ -1,5 +1,4 @@
-from models import db, user, obra, gasto
-+from models import db, User, Obra, Gasto, Department
+from models import db, User, Obra, Gasto, Department
 from flask import Flask, render_template_string, redirect, url_for, request, flash
 from flask_login import (
     LoginManager, UserMixin,
@@ -21,31 +20,6 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# --- MODELS ---
-class Department(db.Model):
-    id   = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False)
-    users = db.relationship('User', backref='department', lazy=True)
-
-class Obra(db.Model):
-    id   = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
-    users = db.relationship('User', backref='obra', lazy=True)
-
-class User(db.Model, UserMixin):
-    id               = db.Column(db.Integer, primary_key=True)
-    name             = db.Column(db.String(100), nullable=False)
-    email            = db.Column(db.String(100), unique=True, nullable=False)
-    password_hash    = db.Column(db.String(128), nullable=False)
-    department_id    = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=False)
-    obra_id          = db.Column(db.Integer, db.ForeignKey('obra.id'), nullable=False)
-
-    def set_password(self, pw):
-        self.password_hash = generate_password_hash(pw)
-
-    def check_password(self, pw):
-        return check_password_hash(self.password_hash, pw)
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -60,9 +34,9 @@ login_tpl = """
   <label>Senha:</label><input name="password" type="password" required><br>
   <button type="submit">Entrar</button>
 </form>
-<p>ou <a href="{{ url_for('register') }}">Cadastre-se</a></p>
+<p>ou <a href='{{ url_for('register') }}'>Cadastre-se</a></p>
 {% with msgs = get_flashed_messages() %}
-  {% for m in msgs %}<p style="color:red;">{{ m }}</p>{% endfor %}
+  {% for m in msgs %}<p style='color:red;'>{{ m }}</p>{% endfor %}
 {% endwith %}
 """
 
@@ -90,7 +64,7 @@ register_tpl = """
 </form>
 <p><a href="{{ url_for('login') }}">Já tenho conta</a></p>
 {% with msgs = get_flashed_messages() %}
-  {% for m in msgs %}<p style="color:red;">{{ m }}</p>{% endfor %}
+  {% for m in msgs %}<p style='color:red;'>{{ m }}</p>{% endfor %}
 {% endwith %}
 """
 
@@ -114,7 +88,11 @@ dashboard_tpl = """
 <p><a href="{{ url_for('logout') }}">Logout</a></p>
 """
 
-# --- ROTAS DE AUTENTICAÇÃO ---
+# --- ROTAS ---
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
@@ -148,32 +126,11 @@ def register():
     return render_template_string(register_tpl,
                                   departments=depts,
                                   obras=obras)
-# Outras rotas existentes...
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-# 🔽 Aqui pode colar as novas rotas do RH
-@app.route('/painel_rh')
+@app.route('/dashboard')
 @login_required
-def painel_rh():
-    return render_template('painel_rh.html')
-
-@app.route('/cadastrar_funcionario', methods=['POST'])
-@login_required
-def cadastrar_funcionario():
-    nome = request.form['nome']
-    cpf = request.form['cpf']
-    data_nasc = request.form['data_nascimento']
-    flash(f'Funcionário {nome} cadastrado com sucesso!')
-    return redirect(url_for('painel_rh'))
-
-@app.route('/calcular_folha', methods=['POST'])
-@login_required
-def calcular_folha():
-    valor_base = float(request.form['valor_base'])
-    horas_50 = float(request.form['horas_50'])
-    horas_100 = float(request.form_
+def dashboard():
+    return render_template_string(dashboard_tpl)
 
 @app.route('/logout')
 @login_required
@@ -181,21 +138,12 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-# --- DASHBOARD INICIAL ---
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    return render_template_string(dashboard_tpl)
-
-# --- SEEDING INICIAL ---
 @app.before_first_request
 def init_db():
     db.create_all()
-    # cria departamentos padrão
     for nome in ['RH','Fiscal','Segurança']:
         if not Department.query.filter_by(name=nome).first():
             db.session.add(Department(name=nome))
-    # cria algumas obras aleatórias
     if Obra.query.count() == 0:
         for i in range(5):
             rnd = ''.join(random.choices(string.ascii_uppercase, k=4))
